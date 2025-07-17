@@ -18,14 +18,21 @@
 
   <script>
     async function main() {
-      await liff.init({ liffId: "2007772610-2rjPV8NG" }); // <== เปลี่ยนตรงนี้
-      if (!liff.isLoggedIn()) liff.login();
+      await liff.init({ liffId: "2007772610-2rjPV8NG" }); // เปลี่ยน liffId เป็นของคุณเอง
 
+      // ถ้ายังไม่ login ให้ redirect ไป login แล้วหยุดทำงาน
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return; // รอให้ redirect กลับมา
+      }
+
+      // ถ้า login แล้ว ให้ดึงโปรไฟล์มาแสดง
       const profile = await liff.getProfile();
       document.getElementById("userId").value = profile.userId;
       document.getElementById("displayName").value = profile.displayName;
     }
 
+    // เมื่อผู้ใช้ submit ฟอร์ม
     document.getElementById("form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const data = {
@@ -34,13 +41,16 @@
         lastname: document.getElementById("lname").value,
         dob: document.getElementById("dob").value,
       };
-      await fetch("https://dfec9b57af55.ngrok-free.app/webhook/", {
+
+      // เปลี่ยน URL ด้านล่างเป็น webhook ของคุณ (ngrok หรือโดเมนจริง)
+      await fetch("https://dfec9b57af55.ngrok-free.app/webhook/my-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       });
+
       alert("ส่งข้อมูลเรียบร้อยแล้ว!");
-      liff.closeWindow();
+      liff.closeWindow(); // ปิดหน้าต่าง LIFF หลังส่งข้อมูล
     });
 
     main();
